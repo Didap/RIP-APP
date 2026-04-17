@@ -67,10 +67,10 @@ export const api = {
     fetchApi<FeedResponse>(`/api/tombstones/feed?page=${page}&pageSize=${pageSize}`),
 
   getMemorial: (slug: string) =>
-    fetchApi<{ data: MemorialDetail }>(`/api/tombstones/memorial/${slug}`),
+    fetchApi<{ data: MemorialDetail }>(`/api/tombstones/tombstone/${slug}`),
 
   createContribution: (slug: string, content_type: string, text_content?: string) =>
-    fetchApi<{ data: any }>(`/api/tombstones/memorial/${slug}/contribute`, {
+    fetchApi<{ data: any }>(`/api/tombstones/tombstone/${slug}/contribute`, {
       method: 'POST',
       body: JSON.stringify({ content_type, text_content }),
     }),
