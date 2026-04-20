@@ -1,18 +1,27 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Colors, FontFamilies, Spacing } from '../../constants/theme';
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#0a7ea4',
-        tabBarInactiveTintColor: '#9BA1A6',
+        tabBarActiveTintColor: Colors.accent,
+        tabBarInactiveTintColor: Colors.textTertiary,
         tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: '#F3F4F6',
-          paddingTop: 4,
-          paddingBottom: 4,
-          height: 56,
+          backgroundColor: Colors.background,
+          borderTopColor: Colors.border,
+          paddingTop: Spacing.xs,
+          paddingBottom: insets.bottom + Spacing.sm,
+          height: 56 + insets.bottom,
+        },
+        tabBarLabelStyle: {
+          fontFamily: FontFamilies.sansMedium,
+          fontSize: 11,
+          marginTop: 2,
         },
         headerShown: false,
       }}
@@ -20,18 +29,18 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Feed',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+          title: 'Home',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Cerca',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="search-outline" size={size} color={color} />
+          title: 'Esplora',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'search' : 'search-outline'} size={size} color={color} />
           ),
         }}
       />
@@ -39,8 +48,8 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profilo',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
           ),
         }}
       />

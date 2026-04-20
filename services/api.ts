@@ -12,6 +12,18 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
   return res.json();
 }
 
+export function stripHtml(html: string | null): string {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
+export function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buongiorno';
+  if (h < 18) return 'Buon pomeriggio';
+  return 'Buonasera';
+}
+
 export interface FeedItem {
   id: string;
   type: 'memorial' | 'contribution';
@@ -21,6 +33,9 @@ export interface FeedItem {
   slogan?: string;
   profile_image?: { url: string; alternativeText?: string } | null;
   dates?: { birth: string; death: string } | null;
+  city?: string | null;
+  memorial_type?: string | null;
+  animal_type?: string | null;
   content_type?: string;
   text_content?: string | null;
   author?: { username: string; first_name?: string; last_name?: string } | null;
@@ -55,11 +70,19 @@ export interface MemorialDetail {
     createdAt: string;
   }>;
   stats: { total: number; flowers: number; candles: number; memories: number };
+  city: string | null;
+  type: 'persona' | 'animale';
+  animal_type: string | null;
+  funeral_home: string | null;
 }
 
 export interface FeedResponse {
   data: FeedItem[];
   meta: { page: number; pageSize: number; total: number };
+}
+
+export interface ExploreResponse {
+  data: MemorialDetail[];
 }
 
 export const api = {
@@ -68,6 +91,15 @@ export const api = {
 
   getMemorial: (slug: string) =>
     fetchApi<{ data: MemorialDetail }>(`/api/tombstones/tombstone/${slug}`),
+
+  getMemorials: async (filters?: { type?: string; city?: string; search?: string }): Promise<MemorialDetail[]> => {
+    const params = new URLSearchParams();
+    if (filters?.type) params.set('type', filters.type);
+    if (filters?.city) params.set('city', filters.city);
+    if (filters?.search) params.set('search', filters.search);
+    const res = await fetchApi<ExploreResponse>(`/api/tombstones/explore?${params.toString()}`);
+    return res.data || [];
+  },
 
   createContribution: (slug: string, content_type: string, text_content?: string) =>
     fetchApi<{ data: any }>(`/api/tombstones/tombstone/${slug}/contribute`, {

@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Colors, FontFamilies, Radii, Spacing } from '../../constants/theme';
 
 interface Props {
   message: string;
@@ -8,7 +9,9 @@ interface Props {
 export default function ErrorView({ message, onRetry }: Props) {
   return (
     <View style={styles.container}>
-      <Text style={styles.icon}>!</Text>
+      <View style={styles.iconCircle}>
+        <Text style={styles.icon}>!</Text>
+      </View>
       <Text style={styles.message}>{message}</Text>
       <TouchableOpacity style={styles.button} onPress={onRetry}>
         <Text style={styles.buttonText}>Riprova</Text>
@@ -22,36 +25,39 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 32,
+    backgroundColor: Colors.background,
+    padding: Spacing.xxxl,
   },
-  icon: {
+  iconCircle: {
     width: 48,
     height: 48,
     borderRadius: 24,
     backgroundColor: '#FEE2E2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  icon: {
     color: '#DC2626',
-    textAlign: 'center',
-    lineHeight: 48,
     fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 16,
+    fontFamily: FontFamilies.sansBold,
   },
   message: {
-    color: '#6B7280',
+    color: Colors.textSecondary,
     fontSize: 14,
+    fontFamily: FontFamilies.sans,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.xl,
   },
   button: {
-    backgroundColor: '#0a7ea4',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 8,
+    backgroundColor: Colors.accent,
+    paddingHorizontal: Spacing.xxl,
+    paddingVertical: Spacing.md,
+    borderRadius: Radii.sm,
   },
   buttonText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: FontFamilies.sansSemiBold,
   },
 });

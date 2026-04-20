@@ -1,81 +1,176 @@
-import { FlatList, RefreshControl, View, Text, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, FlatList, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors, FontFamilies, Spacing } from '../../constants/theme';
+import { getGreeting } from '../../services/api';
 import { useFeed } from '../../hooks/useFeed';
-import MemorialFeedCard from '../../components/feed/MemorialFeedCard';
-import ContributionFeedCard from '../../components/feed/ContributionFeedCard';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import FeaturedMemorialCard from '../../components/home/FeaturedMemorialCard';
+import AnniversaryCard from '../../components/home/AnniversaryCard';
+import QuoteSection from '../../components/home/QuoteSection';
 import ErrorView from '../../components/ui/ErrorView';
 
-export default function FeedScreen() {
+export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const { data, isLoading, error, refetch } = useFeed();
 
-  if (isLoading) return <LoadingSpinner />;
-  if (error) {
-    return <ErrorView message="Errore nel caricamento del feed" onRetry={() => refetch()} />;
-  }
-
   const items = data?.data ?? [];
+  const memorials = items.filter(i => i.type === 'memorial');
+  const featured = memorials.slice(0, 5);
+  const anniversaries = memorials.slice(0, 4);
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />
-        }
-        contentContainerStyle={items.length === 0 ? styles.emptyContainer : styles.list}
-        renderItem={({ item }) => {
-          if (item.type === 'memorial') {
-            return <MemorialFeedCard item={item} />;
-          }
-          return <ContributionFeedCard item={item} />;
-        }}
-        ListHeaderComponent={<View style={styles.header}><Text style={styles.headerTitle}>Feed</Text></View>}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyIcon}>🕊️</Text>
-            <Text style={styles.emptyText}>Nessun memoriale pubblico trovato</Text>
-          </View>
-        }
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingTop: insets.top + Spacing.lg, paddingBottom: 100 }}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.header}>
+        <Text style={styles.brand}>REST IN PIXEL</Text>
+        <Text style={styles.greeting}>
+          {getGreeting()}.
+        </Text>
+      </View>
+
+      <QuoteSection
+        text="Chi viene ricordato, vive."
+        author="Detto antico"
       />
-    </View>
+
+      {isLoading ? (
+        <View style={styles.loading}>
+          <Ionicons name="hourglass-outline" size={24} color={Colors.textTertiary} />
+          <Text style={styles.loadingText}>Caricamento...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorSection}>
+          <ErrorView
+            message="Impossibile caricare i memoriali"
+            onRetry={() => refetch()}
+          />
+        </View>
+      ) : (
+        <>
+          {featured.length > 0 && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>In evidenza</Text>
+                <Text style={styles.sectionLink}>Esplora tutti</Text>
+              </View>
+              <FlatList
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                data={featured}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => <FeaturedMemorialCard item={item} />}
+                contentContainerStyle={styles.carousel}
+              />
+            </View>
+          )}
+
+          {anniversaries.length > 0 && (
+            <View style={styles.section}>
+              <View style={[styles.sectionHeader, { marginBottom: Spacing.md }]}>
+                <Ionicons name="flame" size={18} color={Colors.gold} />
+                <Text style={styles.sectionTitle}>Recenti</Text>
+              </View>
+              <View style={styles.anniversaryList}>
+                {anniversaries.map(item => (
+                  <AnniversaryCard key={item.id} item={item} />
+                ))}
+              </View>
+            </View>
+          )}
+
+          {items.length === 0 && (
+            <View style={styles.empty}>
+              <Ionicons name="leaf-outline" size={48} color={Colors.border} />
+              <Text style={styles.emptyText}>Nessun memoriale trovato</Text>
+              <Text style={styles.emptySubtext}>I memoriali creati appariranno qui</Text>
+            </View>
+          )}
+        </>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.background,
   },
   header: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.xl,
+    marginBottom: Spacing.sm,
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#111827',
+  brand: {
+    fontFamily: FontFamilies.sansSemiBold,
+    fontSize: 11,
+    color: Colors.textTertiary,
+    letterSpacing: 3,
+    marginBottom: Spacing.sm,
   },
-  list: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    gap: 12,
+  greeting: {
+    fontFamily: FontFamilies.serifBold,
+    fontSize: 30,
+    color: Colors.textPrimary,
+    lineHeight: 36,
   },
-  emptyContainer: {
-    flex: 1,
+  section: {
+    marginTop: Spacing.xxl,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xl,
+    marginBottom: Spacing.md,
+    gap: Spacing.sm,
+  },
+  sectionTitle: {
+    fontFamily: FontFamilies.serif,
+    fontSize: 20,
+    color: Colors.textPrimary,
+  },
+  sectionLink: {
+    fontFamily: FontFamilies.sansMedium,
+    fontSize: 14,
+    color: Colors.accent,
+  },
+  carousel: {
+    paddingHorizontal: Spacing.xl,
+    gap: Spacing.md,
+  },
+  anniversaryList: {
+    paddingHorizontal: Spacing.xl,
+    gap: Spacing.md,
+  },
+  loading: {
+    alignItems: 'center',
+    paddingTop: 60,
+    gap: Spacing.md,
+  },
+  loadingText: {
+    fontFamily: FontFamilies.sans,
+    fontSize: 14,
+    color: Colors.textTertiary,
+  },
+  errorSection: {
+    paddingTop: 40,
   },
   empty: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 80,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: 16,
+    paddingTop: 60,
+    gap: Spacing.md,
   },
   emptyText: {
-    color: '#9BA1A6',
-    fontSize: 14,
+    fontFamily: FontFamilies.sansMedium,
+    fontSize: 16,
+    color: Colors.textSecondary,
+  },
+  emptySubtext: {
+    fontFamily: FontFamilies.sans,
+    fontSize: 13,
+    color: Colors.textTertiary,
   },
 });

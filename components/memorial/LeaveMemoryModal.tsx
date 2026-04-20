@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Pressable, Modal, StyleSheet, Platform } from 'react-native';
 import { api } from '../../services/api';
+import { Colors, FontFamilies, Spacing, Radii } from '../../constants/theme';
 
 interface Props {
   visible: boolean;
@@ -46,7 +47,7 @@ export default function LeaveMemoryModal({ visible, memorialSlug, onClose, onSub
             style={styles.input}
             multiline
             placeholder="Scrivi un pensiero, un ricordo o un messaggio..."
-            placeholderTextColor="#9BA1A6"
+            placeholderTextColor={Colors.textTertiary}
             value={text}
             onChangeText={setText}
             autoFocus
@@ -67,30 +68,51 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
   modal: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingTop: 12,
-    paddingHorizontal: 16,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: Radii.xl,
+    borderTopRightRadius: Radii.xl,
+    paddingTop: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Platform.OS === 'ios' ? 40 : Spacing.xxl,
     minHeight: 300,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.lg,
   },
-  cancelText: { fontSize: 16, color: '#0a7ea4' },
-  title: { fontSize: 16, fontWeight: '600', color: '#111827' },
-  submitText: { fontSize: 16, color: '#0a7ea4', fontWeight: '600' },
-  submitDisabled: { color: '#CBD5E1' },
+  cancelText: {
+    fontSize: 16,
+    fontFamily: FontFamilies.sans,
+    color: Colors.textSecondary,
+  },
+  title: {
+    fontSize: 16,
+    fontFamily: FontFamilies.sansSemiBold,
+    color: Colors.textPrimary,
+  },
+  submitText: {
+    fontSize: 16,
+    fontFamily: FontFamilies.sansSemiBold,
+    color: Colors.accent,
+  },
+  submitDisabled: {
+    color: Colors.border,
+  },
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#111827',
+    fontFamily: FontFamilies.sans,
+    color: Colors.textPrimary,
     lineHeight: 24,
     textAlignVertical: 'top',
   },
-  counter: { textAlign: 'right', fontSize: 12, color: '#CBD5E1', marginTop: 8 },
+  counter: {
+    textAlign: 'right',
+    fontSize: 12,
+    fontFamily: FontFamilies.sans,
+    color: Colors.textTertiary,
+    marginTop: Spacing.sm,
+  },
 });
