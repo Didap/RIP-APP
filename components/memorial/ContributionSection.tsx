@@ -5,13 +5,16 @@ import { Colors, FontFamilies, Spacing, Radii } from '../../constants/theme';
 interface Props {
   stats: { flowers: number; candles: number; memories: number };
   variant: 'light' | 'dark';
+  primaryColor?: string;
   onLightCandle: () => void;
   onLeaveFlower: () => void;
   onLeaveMemory: () => void;
 }
 
-export default function ContributionSection({ stats, variant, onLightCandle, onLeaveFlower, onLeaveMemory }: Props) {
+export default function ContributionSection({ stats, variant, primaryColor, onLightCandle, onLeaveFlower, onLeaveMemory }: Props) {
   const isDark = variant === 'dark';
+
+  const accentStyle = primaryColor ? { backgroundColor: primaryColor } : null;
 
   return (
     <View style={styles.container}>
@@ -36,7 +39,12 @@ export default function ContributionSection({ stats, variant, onLightCandle, onL
 
       <View style={styles.buttonsGrid}>
         <Pressable
-          style={[styles.button, isDark ? styles.buttonDark : styles.buttonLight, { flex: 1 }]}
+          style={[
+            styles.button, 
+            isDark ? styles.buttonDark : styles.buttonLight, 
+            accentStyle,
+            { flex: 1 }
+          ]}
           onPress={onLightCandle}
         >
           <Ionicons name="flame" size={16} color="#fff" />
@@ -44,7 +52,12 @@ export default function ContributionSection({ stats, variant, onLightCandle, onL
         </Pressable>
 
         <Pressable
-          style={[styles.button, isDark ? styles.buttonDark : styles.buttonLight, { flex: 1 }]}
+          style={[
+            styles.button, 
+            isDark ? styles.buttonDark : styles.buttonLight, 
+            accentStyle,
+            { flex: 1 }
+          ]}
           onPress={onLeaveFlower}
         >
           <Ionicons name="rose" size={16} color="#fff" />

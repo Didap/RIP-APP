@@ -21,6 +21,7 @@ export default function FeaturedMemorialCard({ item }: Props) {
       <Image
         source={{ uri: item.profile_image?.url }}
         style={styles.image}
+        resizeMode="cover"
       />
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>{item.full_name}</Text>
@@ -47,7 +48,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 130,
-    resizeMode: 'cover',
   },
   info: {
     padding: Spacing.md,

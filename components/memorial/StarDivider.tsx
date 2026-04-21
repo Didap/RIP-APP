@@ -3,14 +3,17 @@ import { Colors, Spacing } from '../../constants/theme';
 
 interface Props {
   variant?: 'light' | 'dark';
+  color?: string;
 }
 
-export default function StarDivider({ variant = 'light' }: Props) {
+export default function StarDivider({ variant = 'light', color }: Props) {
+  const starColor = color || Colors.gold;
+
   return (
     <View style={styles.container}>
-      <View style={[styles.line, variant === 'dark' && styles.lineDark]} />
-      <Text style={[styles.star, variant === 'dark' && styles.starDark]}>✦</Text>
-      <View style={[styles.line, variant === 'dark' && styles.lineDark]} />
+      <View style={[styles.line, { backgroundColor: starColor }, variant === 'dark' && styles.lineDark]} />
+      <Text style={[styles.star, { color: starColor }, variant === 'dark' && styles.starDark]}>✦</Text>
+      <View style={[styles.line, { backgroundColor: starColor }, variant === 'dark' && styles.lineDark]} />
     </View>
   );
 }

@@ -10,7 +10,9 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "associatedDomains": ["applinks:TODO_SET_DOMAIN"]
+      "associatedDomains": [
+        "applinks:TODO_SET_DOMAIN"
+      ]
     },
     "android": {
       "intentFilters": [
@@ -24,7 +26,10 @@
               "pathPrefix": "/m"
             }
           ],
-          "categories": ["BROWSABLE", "DEFAULT"]
+          "categories": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ],
       "adaptiveIcon": {
@@ -53,7 +58,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

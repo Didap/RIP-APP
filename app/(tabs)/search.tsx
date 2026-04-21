@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { View, Text, TextInput, FlatList, Dimensions, StyleSheet } from 'react-native';
+import { View, Text, TextInput, FlatList, Dimensions, StyleSheet, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, FontFamilies, Spacing, Radii } from '../../constants/theme';
 import { useExplore } from '../../hooks/useExplore';
+import { HapticNotification } from '../../utils/haptics';
 import TabSelector from '../../components/explore/TabSelector';
 import FilterChip from '../../components/explore/FilterChip';
 import ExploreMemorialCard from '../../components/explore/ExploreMemorialCard';
@@ -21,8 +22,17 @@ export default function ExploreScreen() {
     activeTab, setActiveTab,
     locationFilter, setLocationFilter,
     typeFilter, setTypeFilter,
-    filteredResults, cities, isLoading,
+    filteredResults, cities, isLoading, refetch
   } = useExplore();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+    HapticNotification.success();
+  };
 
   const [showLocationFilter, setShowLocationFilter] = useState(false);
 
@@ -122,6 +132,14 @@ export default function ExploreScreen() {
           )}
           ListEmptyComponent={<EmptyExploreState />}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Colors.accent}
+              colors={[Colors.accent]}
+            />
+          }
         />
       )}
     </View>
@@ -182,11 +200,8 @@ const styles = StyleSheet.create({
     borderRadius: Radii.sm,
     padding: Spacing.sm,
     gap: Spacing.xs,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
     elevation: 4,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   },
   filterOption: {
     fontFamily: FontFamilies.sans,

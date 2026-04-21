@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 export const Colors = {
   background: '#F8F6F2',
   backgroundAlt: '#FAF8F5',
@@ -47,18 +49,24 @@ export const Radii = {
 };
 
 export const Shadows = {
-  card: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  subtle: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
-  },
+  card: Platform.select({
+    web: { boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+    default: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+  }) as any,
+  subtle: Platform.select({
+    web: { boxShadow: '0 1px 4px rgba(0,0,0,0.03)' },
+    default: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.03,
+      shadowRadius: 4,
+      elevation: 1,
+    },
+  }) as any,
 };

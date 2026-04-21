@@ -1,30 +1,78 @@
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, Text, ScrollView, Pressable, StyleSheet, Alert, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../context/AuthContext';
+import { getGreeting } from '../../services/api';
+import { HapticNotification } from '../../utils/haptics';
 import { Colors, FontFamilies, Spacing, Radii, Shadows } from '../../constants/theme';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const { user, logout, refreshAuth } = useAuth();
+  const router = useRouter();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshAuth();
+    setRefreshing(false);
+    HapticNotification.success();
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Disconnetti",
+      "Sei sicuro di voler uscire?",
+      [
+        { text: "Annulla", style: "cancel" },
+        { text: "Esci", style: "destructive", onPress: logout }
+      ]
+    );
+  };
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingTop: insets.top + Spacing.xl, paddingBottom: 100 }}
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl 
+          refreshing={refreshing} 
+          onRefresh={onRefresh} 
+          tintColor={Colors.accent}
+          colors={[Colors.accent]}
+        />
+      }
     >
       <View style={styles.profileHeader}>
         <View style={styles.avatar}>
           <Ionicons name="person-outline" size={32} color={Colors.textTertiary} />
         </View>
-        <Text style={styles.title}>Profilo</Text>
-        <Text style={styles.subtitle}>Accedi per gestire i tuoi memoriali</Text>
+        <Text style={styles.title}>{user ? user.username : 'Profilo'}</Text>
+        <Text style={styles.subtitle}>
+          {user ? user.email : 'Accedi per gestire i tuoi memoriali'}
+        </Text>
       </View>
 
-      <View style={styles.section}>
-        <Pressable style={styles.loginButton}>
-          <Text style={styles.loginButtonText}>Accedi</Text>
-        </Pressable>
-      </View>
+      {!user ? (
+        <View style={styles.section}>
+          <Pressable 
+            style={styles.loginButton} 
+            onPress={() => router.push('/(auth)/login')}
+          >
+            <Text style={styles.loginButtonText}>Accedi</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <View style={styles.section}>
+          <Pressable style={styles.settingsItem} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+            <Text style={[styles.settingsLabel, { color: '#EF4444' }]}>Disconnetti</Text>
+          </Pressable>
+        </View>
+      )}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Impostazioni</Text>

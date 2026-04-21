@@ -6,16 +6,18 @@ interface Props {
   imageUrl: string;
   onBack: () => void;
   onShare?: () => void;
+  height?: number;
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default function HeroImage({ imageUrl, onBack, onShare }: Props) {
+export default function HeroImage({ imageUrl, onBack, onShare, height = 320 }: Props) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { height }]}>
       <Image
         source={{ uri: imageUrl }}
         style={styles.image}
+        resizeMode="cover"
       />
       <View style={styles.overlay} />
       <View style={styles.buttons}>
@@ -39,7 +41,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -53,6 +54,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
+    zIndex: 10,
   },
   circleButton: {
     width: 40,

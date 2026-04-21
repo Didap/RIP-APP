@@ -11,7 +11,7 @@ export function useExplore() {
 
   const typeParam = activeTab === 0 ? 'persona' : 'animale';
 
-  const { data: memorials = [], isLoading } = useQuery({
+  const { data: memorials = [], isLoading, refetch } = useQuery({
     queryKey: ['memorials', typeParam, locationFilter],
     queryFn: () => api.getMemorials({
       type: typeParam,
@@ -53,5 +53,6 @@ export function useExplore() {
     filteredResults,
     cities,
     isLoading,
+    refetch,
   };
 }

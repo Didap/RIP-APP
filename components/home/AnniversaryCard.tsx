@@ -21,6 +21,7 @@ export default function AnniversaryCard({ item }: Props) {
       <Image
         source={{ uri: item.profile_image?.url }}
         style={styles.avatar}
+        resizeMode="cover"
       />
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>{item.full_name}</Text>
@@ -50,7 +51,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    resizeMode: 'cover',
   },
   info: {
     flex: 1,

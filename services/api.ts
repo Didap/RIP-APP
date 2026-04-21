@@ -1,15 +1,40 @@
-const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:1337';
+import { Platform } from 'react-native';
+import { storage } from './storage';
+
+const API_BASE = Platform.OS === 'web' 
+  ? 'http://127.0.0.1:1337' 
+  : (process.env.EXPO_PUBLIC_API_URL || 'http://localhost:1337');
+
 
 async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: { 'Content-Type': 'application/json', ...(options?.headers as Record<string, string>) },
-    ...options,
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`API Error ${res.status}: ${text}`);
+  const token = await storage.getItem('userToken');
+  const fullUrl = `${API_BASE}${endpoint}`;
+
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers as Record<string, string>),
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
-  return res.json();
+
+  try {
+    const res = await fetch(fullUrl, {
+      ...options,
+      headers,
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      console.error(`💥 [API] Error ${res.status} on ${fullUrl}:`, text);
+      throw new Error(`API Error ${res.status}: ${text}`);
+    }
+    return res.json();
+  } catch (err: any) {
+    console.error(`❌ [API] Connection failed to ${fullUrl}:`, err.message);
+    throw err;
+  }
 }
 
 export function stripHtml(html: string | null): string {
@@ -39,6 +64,7 @@ export interface FeedItem {
   content_type?: string;
   text_content?: string | null;
   author?: { username: string; first_name?: string; last_name?: string } | null;
+  is_anonymous?: boolean;
   tombstone?: {
     full_name: string;
     slug: string;
@@ -48,6 +74,16 @@ export interface FeedItem {
   timestamp: string;
 }
 
+export interface CustomizationData {
+  primary_color?: string;
+  background_color?: string;
+  font_family?: string;
+  hide_stats?: boolean;
+  hide_biography?: boolean;
+  border_radius?: string;
+  card_bg_color?: string;
+}
+
 export interface MemorialDetail {
   id: string;
   full_name: string;
@@ -55,6 +91,7 @@ export interface MemorialDetail {
   biography: string | null;
   dates: { birth: string; death: string } | null;
   template: 'classic' | 'elegant' | 'modern';
+  customization: CustomizationData | null;
   slug: string;
   profile_image: { url: string; alternativeText?: string } | null;
   cover_image: { url: string; alternativeText?: string } | null;
@@ -67,7 +104,9 @@ export interface MemorialDetail {
     content_type: string;
     text_content: string | null;
     author: { username: string; first_name?: string; last_name?: string } | null;
+    is_anonymous?: boolean;
     createdAt: string;
+    event_date: string | null;
   }>;
   stats: { total: number; flowers: number; candles: number; memories: number };
   city: string | null;
@@ -101,9 +140,26 @@ export const api = {
     return res.data || [];
   },
 
-  createContribution: (slug: string, content_type: string, text_content?: string) =>
+  createContribution: (slug: string, content_type: string, text_content?: string, event_date?: string, is_anonymous?: boolean) =>
     fetchApi<{ data: any }>(`/api/tombstones/tombstone/${slug}/contribute`, {
       method: 'POST',
-      body: JSON.stringify({ content_type, text_content }),
+      body: JSON.stringify({ content_type, text_content, event_date, is_anonymous }),
+    }),
+
+  login: (data: any) =>
+    fetchApi<{ jwt: string; user: any }>('/api/auth/local', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  register: (data: any) =>
+    fetchApi<{ jwt: string; user: any }>('/api/auth/local/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getMe: (token?: string) =>
+    fetchApi<any>('/api/users/me', {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
     }),
 };

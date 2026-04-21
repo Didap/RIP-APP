@@ -1,17 +1,29 @@
-import { View, Text, ScrollView, FlatList, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, Text, ScrollView, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontFamilies, Spacing } from '../../constants/theme';
 import { getGreeting } from '../../services/api';
 import { useFeed } from '../../hooks/useFeed';
+import { HapticNotification } from '../../utils/haptics';
 import FeaturedMemorialCard from '../../components/home/FeaturedMemorialCard';
 import AnniversaryCard from '../../components/home/AnniversaryCard';
 import QuoteSection from '../../components/home/QuoteSection';
 import ErrorView from '../../components/ui/ErrorView';
+import HomeSkeleton from '../../components/home/HomeSkeleton';
+import RefreshIndicatorWeb from '../../components/ui/RefreshIndicatorWeb';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { data, isLoading, error, refetch } = useFeed();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+    HapticNotification.success();
+  };
 
   const items = data?.data ?? [];
   const memorials = items.filter(i => i.type === 'memorial');
@@ -23,7 +35,16 @@ export default function HomeScreen() {
       style={styles.container}
       contentContainerStyle={{ paddingTop: insets.top + Spacing.lg, paddingBottom: 100 }}
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl 
+          refreshing={refreshing} 
+          onRefresh={onRefresh} 
+          tintColor={Colors.accent}
+          colors={[Colors.accent]}
+        />
+      }
     >
+      <RefreshIndicatorWeb refreshing={refreshing} />
       <View style={styles.header}>
         <Text style={styles.brand}>REST IN PIXEL</Text>
         <Text style={styles.greeting}>
@@ -37,10 +58,7 @@ export default function HomeScreen() {
       />
 
       {isLoading ? (
-        <View style={styles.loading}>
-          <Ionicons name="hourglass-outline" size={24} color={Colors.textTertiary} />
-          <Text style={styles.loadingText}>Caricamento...</Text>
-        </View>
+        <HomeSkeleton />
       ) : error ? (
         <View style={styles.errorSection}>
           <ErrorView

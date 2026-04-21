@@ -22,6 +22,7 @@ export default function ExploreMemorialCard({ item, cardWidth }: Props) {
       <Image
         source={{ uri: item.profile_image?.url }}
         style={styles.image}
+        resizeMode="cover"
       />
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>{item.full_name}</Text>
@@ -51,7 +52,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 140,
-    resizeMode: 'cover',
   },
   info: {
     padding: Spacing.md,
